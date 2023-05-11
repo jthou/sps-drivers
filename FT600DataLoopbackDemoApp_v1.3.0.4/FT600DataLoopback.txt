@@ -1,0 +1,93 @@
+ ------------------------------------------------------------
+| FT600 Data Loopback
+| Built   Jun 28 2019 21:15:38
+| Started 05  11 2023 16:32:04
+ ------------------------------------------------------------
+
+[2023-05-11 16:32:04:728][089408] [0x02] Session Length: 4096
+[2023-05-11 16:32:04:729][089408] [0x82] Session Length: 4096
+[2023-05-11 16:32:04:729][089408] [0x03] Session Length: 4096
+[2023-05-11 16:32:04:729][089408] [0x83] Session Length: 4096
+[2023-05-11 16:32:04:729][089408] [0x04] Session Length: 4096
+[2023-05-11 16:32:04:729][089408] [0x84] Session Length: 4096
+[2023-05-11 16:32:04:730][089408] [0x05] Session Length: 4096
+[2023-05-11 16:32:04:732][089408] [0x85] Session Length: 4096
+[2023-05-11 16:32:04:883][089408] INITIALIZATION: CUIManager::OnStartWork
+[2023-05-11 16:32:04:884][089408] INITIALIZATION: CTaskManager::CTaskManager
+[2023-05-11 16:32:04:884][073988] INITIALIZATION: CTaskManager::Initialize
+[2023-05-11 16:32:06:072][073988] 
+List of Connected Devices!
+
+[2023-05-11 16:32:06:075][073988] Device[0]
+[2023-05-11 16:32:06:076][073988] 	Flags: 0x4 [USB 3]  |  Type: 601 [FT60X]  |  ID: 0x0403601F  |  ftHandle: 0x0 
+[2023-05-11 16:32:06:077][073988] 	Description: FTDI SuperSpeed-FIFO Bridge
+[2023-05-11 16:32:06:077][073988] 	SerialNumber: 000000000001
+[2023-05-11 16:32:06:077][073988] 
+[2023-05-11 16:32:06:077][073988] FT_Open
+[2023-05-11 16:32:06:096][073988] Device with Serial Number [000000000001] opened! Device[0]!
+[2023-05-11 16:32:06:097][073988] INITIALIZATION: CWriterThread::CWriterThread[02]
+[2023-05-11 16:32:06:097][073988] INITIALIZATION: CReaderThread::CReaderThread[82]
+[2023-05-11 16:32:06:098][089216] INITIALIZATION: CWriterThread::Initialize[02]
+[2023-05-11 16:32:06:098][069828] INITIALIZATION: CReaderThread::Initialize[82]
+[2023-05-11 16:32:06:132][070688] 
+[2023-05-11 16:32:06:134][070688] Device Firmware Version: 0x0109
+[2023-05-11 16:32:06:135][070688] D3XX Driver Version: 0x01030004 | D3XX Library Version: 0x01030004
+[2023-05-11 16:32:06:137][070688] 
+[2023-05-11 16:32:06:139][070688] DeviceDetectionRoutine end!
+[2023-05-11 16:32:15:650][089216] [EP02] FT600DataLoopback_Output\20230511_163215_PayloadEP02.txt
+[2023-05-11 16:32:15:650][089408] [0x02] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:15:651][089216] [0x02] 4096 XXX
+
+[2023-05-11 16:32:15:655][089216] [EP02] Written 4096 bytes to device!
+[2023-05-11 16:32:15:655][089216] [EP02] Loopback status (W:4096 R:0)!
+[2023-05-11 16:32:15:656][013448] [0x02] Status: Completed (Payload: Length: 4096, ActualBytesWritten: 4096)
+[2023-05-11 16:32:17:026][089216] [0x02] 4096 XXX
+
+[2023-05-11 16:32:17:133][089216] [EP02] Written 4096 bytes to device!
+[2023-05-11 16:32:17:133][089216] [EP02] Loopback status (W:8192 R:0)!
+[2023-05-11 16:32:17:133][089408] [0x02] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:17:133][090840] [0x02] Status: Completed (Payload: Length: 4096, ActualBytesWritten: 4096)
+[2023-05-11 16:32:20:893][069828] [0x82] WaitForSingleObject WAIT_OBJECT_0!
+[2023-05-11 16:32:20:998][069828] [EP82] FT600DataLoopback_Output\20230511_163215_PayloadEP82.txt
+[2023-05-11 16:32:20:998][089408] [0x82] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:20:998][069828] [0x82] 4096 XXX
+
+[2023-05-11 16:32:21:003][069828] [EP82] Read 4096 bytes from device!
+[2023-05-11 16:32:21:003][069828] [EP82] Loopback status (W:8192 R:4096)!
+[2023-05-11 16:32:21:004][083572] [0x82] Status: Completed (Payload: Length: 4096, ActualBytesRead: 4096)
+[2023-05-11 16:32:24:896][069828] [0x82] WaitForSingleObject WAIT_OBJECT_0!
+[2023-05-11 16:32:24:896][069828] [0x82] 4096 XXX
+
+[2023-05-11 16:32:25:000][069828] [EP82] Read 4096 bytes from device!
+[2023-05-11 16:32:25:000][069828] [EP82] Loopback status (W:8192 R:8192) completed!
+[2023-05-11 16:32:25:000][089408] [0x82] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:25:020][069828] [0282] RESULT: Verified files do not match! FAILED!
+[2023-05-11 16:32:25:020][069828] 
+[2023-05-11 16:32:25:020][056068] [0x82] Status: Completed (Payload: Length: 4096, ActualBytesRead: 4096)
+[2023-05-11 16:32:25:828][069828] [0x82] WaitForSingleObject WAIT_OBJECT_0!
+[2023-05-11 16:32:25:933][069828] [EP82] FT600DataLoopback_Output\20230511_163225_PayloadEP82.txt
+[2023-05-11 16:32:25:933][089408] [0x82] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:25:935][069828] [0x82] 4096 XXX
+
+[2023-05-11 16:32:30:264][089408] [0x82] Stop
+[2023-05-11 16:32:32:954][069828] [0x82] WaitForSingleObject WAIT_OBJECT_0!
+[2023-05-11 16:32:33:060][069828] [EP82] FT600DataLoopback_Output\20230511_163232_PayloadEP82.txt
+[2023-05-11 16:32:33:060][089408] [0x82] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:33:061][069828] [0x82] 4096 XXX
+
+[2023-05-11 16:32:48:301][089408] [0x82] Stop
+[2023-05-11 16:32:50:256][089408] [0x02] Start 		 (Payload Length: 4096)
+[2023-05-11 16:32:51:402][089216] [EP02] FT600DataLoopback_Output\20230511_163250_PayloadEP02.txt
+[2023-05-11 16:32:51:403][089216] [0x02] 4096 XXX
+
+[2023-05-11 16:32:51:408][089216] [EP02] Written 4096 bytes to device!
+[2023-05-11 16:32:51:408][089216] [EP02] Loopback status (W:4096 R:0)!
+[2023-05-11 16:32:51:409][089216] [EP82] Read 4096 bytes from device!
+[2023-05-11 16:32:51:409][089216] [EP82] Loopback status (W:4096 R:4096) completed!
+[2023-05-11 16:32:51:409][068708] [0x02] Status: Completed (Payload: Length: 4096, ActualBytesWritten: 4096)
+[2023-05-11 16:32:51:412][089904] [0x82] Status: Completed (Payload: Length: 4096, ActualBytesRead: 4096)
+[2023-05-11 16:32:57:859][089408] TERMINATION: CUIManager::~CUIManager
+[2023-05-11 16:32:57:859][089408] TERMINATION: CTaskManager::~CTaskManager
+[2023-05-11 16:32:57:859][089408] TERMINATION: CTaskManager::Cleanup
+[2023-05-11 16:32:58:079][089408] TERMINATION: CTaskManager::~CTaskManager DONE!
+[2023-05-11 16:32:58:079][089408] TERMINATION: CUIManager::~CUIManager DONE!
