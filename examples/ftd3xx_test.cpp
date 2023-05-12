@@ -108,7 +108,6 @@ int main()
     BYTE rxBuffer[256];
     DWORD numBytesRead;
     ULONG ulActualBytesTransferred = 0;
-
     // Read data using FT_ReadPipeEx
     status = FT_ReadPipeEx(
         handle,
