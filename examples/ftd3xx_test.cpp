@@ -43,39 +43,98 @@ int main()
     }
     fprintf(stdout, "VID: %04X, PID: %04X\n", uwVID, uwPID);
 
-    FT_60XCONFIGURATION oConfig = { 0 };
-    status = FT_GetChipConfiguration(handle, &oConfig);
+    // Get EP
+    FT_DEVICE_DESCRIPTOR deviceDescriptor;
+    FT_CONFIGURATION_DESCRIPTOR configDescriptor;
+    FT_INTERFACE_DESCRIPTOR interfaceDescriptor;
+    FT_PIPE_INFORMATION pipeInfo;
+    DWORD dwReadPipeId = 0;
+    ZeroMemory(&deviceDescriptor, sizeof(FT_DEVICE_DESCRIPTOR));
+    ZeroMemory(&configDescriptor, sizeof(FT_CONFIGURATION_DESCRIPTOR));
+    ZeroMemory(&interfaceDescriptor, sizeof(FT_INTERFACE_DESCRIPTOR));
+    ZeroMemory(&pipeInfo, sizeof(FT_PIPE_INFORMATION));
+
+    status = FT_GetDeviceDescriptor(handle, &deviceDescriptor);
     if (status != FT_OK) {
-        fprintf(stderr, "Failed to get chip configuration: %d\n", status);
+        fprintf(stderr, "Failed to get device descriptor: %d\n", status);
         return 1;
     }
 
-    if (oConfig.FIFOMode == CONFIGURATION_FIFO_MODE_245) {
-        fprintf(stdout, "FIFO mode: 245\n");
-
-        //// configure the GPIOs to OUTPUT mode
-        //status = FT_EnableGPIO(handle, (FT_GPIO_DIRECTION_OUT << FT_GPIO_0) | (FT_GPIO_DIRECTION_OUT << FT_GPIO_1),
-        //    (FT_GPIO_DIRECTION_OUT << FT_GPIO_0) | (FT_GPIO_DIRECTION_OUT << FT_GPIO_1));
-        //if (status != FT_OK) {
-        //    fprintf(stderr, "Failed to configure GPIOs: %d\n", status);
-        //    return 1;
-        //}
-
-        //// write to GPIOs: set the pins to LOW
-        //status = FT_WriteGPIO(handle, (FT_GPIO_VALUE_HIGH << FT_GPIO_0) | (FT_GPIO_VALUE_HIGH << FT_GPIO_1),
-        //    (FT_GPIO_VALUE_LOW << FT_GPIO_0) | (FT_GPIO_VALUE_LOW << FT_GPIO_1));
-        //if (status != FT_OK) {
-        //    fprintf(stderr, "Failed to write GPIOs: %d\n", status);
-        //    return 1;
-        //}
-    }
-    else if (oConfig.FIFOMode == CONFIGURATION_FIFO_MODE_600) {
-        fprintf(stdout, "FIFO mode: 600\n");
-    }
-    else {
-        fprintf(stdout, "FIFO mode: unknown\n");
+    status = FT_GetConfigurationDescriptor(handle, &configDescriptor);
+    if (status != FT_OK) {
+        fprintf(stderr, "Failed to get configuration descriptor: %d\n", status);
+        return 1;
     }
 
+    if (configDescriptor.bNumInterfaces == 0) {
+        fprintf(stderr, "No interface found\n");
+        return 1;
+    } else if (configDescriptor.bNumInterfaces == 1) {
+        fprintf(stdout, "Found 1 interface\n");
+        status = FT_GetInterfaceDescriptor(handle, 0, &interfaceDescriptor);
+    } else {
+        fprintf(stdout, "Found %d interfaces\n", configDescriptor.bNumInterfaces);
+        for (int i = 0; i < configDescriptor.bNumInterfaces; i++) {
+            status = FT_GetInterfaceDescriptor(handle, i, &interfaceDescriptor);
+            if (status != FT_OK) {
+                fprintf(stderr, "Failed to get interface descriptor: %d\n", status);
+                return 1;
+            }
+            fprintf(stdout, "Interface %d: %d endpoints\n", i, interfaceDescriptor.bNumEndpoints);
+            for (int j = 0; j < interfaceDescriptor.bNumEndpoints; j++) {
+                status = FT_GetPipeInformation(handle, i, j, &pipeInfo);
+                if (status != FT_OK) {
+                    fprintf(stderr, "Failed to get pipe information: %d\n", status);
+                    return 1;
+                }
+                if (FT_IS_READ_PIPE(pipeInfo.PipeId)) {
+                    fprintf(stdout, "Read pipe: 0x%02X\n", pipeInfo.PipeId);
+                    dwReadPipeId = pipeInfo.PipeId;
+                } else if (FT_IS_WRITE_PIPE(pipeInfo.PipeId)) {
+                    fprintf(stdout, "Write pipe: 0x%02X\n", pipeInfo.PipeId);
+                } else {
+                    fprintf(stdout, "Unknown pipe: 0x%02X\n", pipeInfo.PipeId);
+                }
+            }
+        }
+    }
+
+    if (dwReadPipeId == 0) {
+        fprintf(stderr, "No read pipe found\n");
+        return 1;
+    }
+
+
+    BYTE rxBuffer[256];
+    DWORD numBytesRead;
+    ULONG ulActualBytesTransferred = 0;
+
+    // Read data using FT_ReadPipeEx
+    status = FT_ReadPipeEx(
+        handle,
+        pipeInfo.PipeId,
+        rxBuffer,
+        sizeof(rxBuffer),
+        &numBytesRead,
+        NULL
+    );
+
+    // Wait for data to be received
+    while (numBytesRead == 0) {
+        Sleep(100);
+        status = FT_GetOverlappedResult(handle, NULL, &numBytesRead, FALSE);
+        if (status != FT_IO_PENDING && status != FT_OK) {
+            printf("Failed to get overlapped result: %d\n", status);
+            FT_Close(handle);
+            return 1;
+        }
+    }
+
+    printf("Received %d bytes:", numBytesRead);
+    for (DWORD i = 0; i < numBytesRead; i++) {
+        printf(" 0x%02X", rxBuffer[i]);
+    }
+    printf("\n");
 
     // Close the FTD3XX context
     FT_Close(handle);
