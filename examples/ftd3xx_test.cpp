@@ -1,24 +1,21 @@
 #include <stdio.h>
 #include "FTD3XX.h"
 #include <string>
+#include <memory>
+#include <iostream>
 
-#define BUFFER_SIZE 1024
-
-int main()
-{
+int main() {
     FT_STATUS status = FT_OK;
 
     // Get the number of connected devices
     DWORD dwNumDevices = 0;
     status = FT_ListDevices(&dwNumDevices, NULL, FT_LIST_NUMBER_ONLY);
-    if (status != FT_OK)
-    {
+    if (status != FT_OK) {
         fprintf(stderr, "FT_ListDevices failed (error code %d)\n", (int)status);
         return 1;
     }
     fprintf(stdout, "Number of devices is %d\n", (int)dwNumDevices);
-    if (dwNumDevices == 0)
-    {
+    if (dwNumDevices == 0) {
         fprintf(stderr, "No devices connected\n");
         return 1;
     }
@@ -104,38 +101,44 @@ int main()
         return 1;
     }
 
+    // Set the read timeout to 1000ms
+    FT_SetPipeTimeout(handle, dwReadPipeId, 1000);
 
-    BYTE rxBuffer[256];
-    DWORD numBytesRead;
-    ULONG ulActualBytesTransferred = 0;
-    // Read data using FT_ReadPipeEx
-    status = FT_ReadPipeEx(
-        handle,
-        pipeInfo.PipeId,
-        rxBuffer,
-        sizeof(rxBuffer),
-        &numBytesRead,
-        NULL
-    );
+    // Allocate a buffer for reading data
+    const DWORD bufferSize = 256*1024;
+    std::unique_ptr<UCHAR[]> rxBuffer(new UCHAR[bufferSize]);
 
-    // Wait for data to be received
-    while (numBytesRead == 0) {
-        Sleep(100);
-        status = FT_GetOverlappedResult(handle, NULL, &numBytesRead, FALSE);
-        if (status != FT_IO_PENDING && status != FT_OK) {
-            printf("Failed to get overlapped result: %d\n", status);
-            FT_Close(handle);
-            return 1;
+    const int NUM_BUFFERS = 16;
+    const int BUFFER_SIZE = 256*1024;
+
+    std::unique_ptr<unsigned char[]>acBuf(new unsigned char [NUM_BUFFERS * BUFFER_SIZE]);
+    ULONG ulBytesTransferred[NUM_BUFFERS] = {0};
+    OVERLAPPED vOverlapped[NUM_BUFFERS] = {0};
+
+    for (int i=0; i<NUM_BUFFERS; i++) {
+        status = FT_InitializeOverlapped(handle, &vOverlapped[i]);
+    }
+
+    status = FT_SetStreamPipe(handle, FALSE, FALSE, dwReadPipeId, BUFFER_SIZE);
+    // Queue up the initial batch of requests
+    for (int i=0; i<NUM_BUFFERS; i++) {
+        status = FT_ReadPipeEx(handle, dwReadPipeId, &acBuf[i*BUFFER_SIZE], BUFFER_SIZE, &ulBytesTransferred[i], &vOverlapped[i]);
+    }
+
+    int i=0;
+    while (1) {
+        // Wait for transfer to finish
+        status = FT_GetOverlappedResult(handle, &vOverlapped[i], &ulBytesTransferred[i], TRUE);
+        printf("status = %d\n", status);
+        if (++i == NUM_BUFFERS) {
+            printf("all data has been transferred\n");
+            break;
         }
     }
-
-    printf("Received %d bytes:", numBytesRead);
-    for (DWORD i = 0; i < numBytesRead; i++) {
-        printf(" 0x%02X", rxBuffer[i]);
+    for (int i=0; i<NUM_BUFFERS; i++) {
+        FT_ReleaseOverlapped(handle, &vOverlapped[i]);
     }
-    printf("\n");
 
-    // Close the FTD3XX context
     FT_Close(handle);
     return 0;
 }
