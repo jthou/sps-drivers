@@ -130,7 +130,11 @@ int main() {
         // Wait for transfer to finish
         status = FT_GetOverlappedResult(handle, &vOverlapped[i], &ulBytesTransferred[i], TRUE);
         printf("status = %d\n", status);
-        if (++i == NUM_BUFFERS) {
+        if (status == FT_OK) {
+            printf("buffer %d is ok\n", i);
+        }
+        i++;
+        if (i == NUM_BUFFERS) {
             printf("all data has been transferred\n");
             break;
         }
